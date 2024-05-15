@@ -1,28 +1,58 @@
 pipeline {
-    agent any {
-      image 'maven:3.9.0'
-      args '-v /root/.m2:/root/.m2'  
+    agent any
+
+    tools {
+        // Install the Maven version configured as "jenkins-maven" and add it to the path.
+        maven "jenkins-maven"
     }
+
     stages {
-        stage('Build') {
-            steps {
-                sh 'mvn -B -DskipTests clean package'
+        stage('build'){
+            steps{
+                sh 'mvn clean package'
             }
         }
-        stage('Test') {
-            steps {
+        stage('test'){
+            steps{
                 sh 'mvn test'
             }
-            post {
-                always {
-                    junit 'target/surefire-reports/*.xml'
+            post{
+                always{
+                    junit '**/target/surefire-reports/*.xml'
                 }
             }
         }
-        stage('Deliver') {
-            steps {
-                sh './jenkins/scripts/deliver.sh'
+        
+        
+        stage('Approval'){
+            steps{
+                input 'can we proceed for the deployment?'
             }
+        }
+        
+        
+        stage('deploy'){
+            steps{
+                sh '''
+                java -jar /var/lib/jenkins/workspace/MAVEN-DEMO/target/my-app-1.0-SNAPSHOT.jar
+                echo 'deployment successful'
+                '''
+            }
+        }
+    }
+    
+    post {
+    failure {
+      mail(
+        to: 'shelkeakankshab2001@gmail.com', 
+        subject: "Failed: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
+        body: "Job '${env.JOB_NAME}' (${env.BUILD_URL}) Failed."
+      )
+    }
+        success{
+            echo 'build and test are completed successfully'
+            archiveArtifacts artifacts: '**/target/*.jar', onlyIfSuccessful: true
+            
         }
     }
 }
