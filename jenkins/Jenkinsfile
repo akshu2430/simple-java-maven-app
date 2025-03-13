@@ -34,7 +34,7 @@ pipeline {
         stage('deploy'){
             steps{
                 sh '''
-                java -jar /var/lib/jenkins/workspace/MAVEN-DEMO/target/my-app-1.0-SNAPSHOT.jar
+              //  java -jar /var/lib/jenkins/workspace/MAVEN-DEMO/target/my-app-1.0-SNAPSHOT.jar
                 echo 'deployment successful'
                 '''
             }
