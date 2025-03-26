@@ -2,6 +2,12 @@ pipeline {
     agent any
 
     stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the code from the GitHub repository
+                git branch: 'master', credentialsId: '51d0a86a-eb66-4b77-8101-c3d680115f7f', url: 'https://github.com/akshu2430/simple-java-maven-app.git'
+            }
+        }
         stage('build') {
             steps {
                 echo 'Hello World'
